@@ -8,5 +8,6 @@
 
 
 # {$and: [{"offices.city": {$in : ["Amsterdam"]}}, {deadpooled_year: null}]}
+# {'$and': [{"offices.latitude": { '$nin': [null] }}, {"offices.longitude":{ '$nin': [null] }}, {"offices.city": "Amsterdam"}, {'deadpooled_year': null}]}
 
 # Buscar escuelas o guarderias
