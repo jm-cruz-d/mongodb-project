@@ -18,6 +18,9 @@
 # {'$and': [{"offices.latitude": { '$nin': [null] }}, {"offices.longitude":{ '$nin': [null] }}, {"offices.city": "Amsterdam"}, {'deadpooled_year': null}, {"funding_rounds.raised_amount": {$gte: 1000000}}]}
 
 
+# Los nulos de Amsterdam
+# {$and: [{"offices.latitude": { '$in': [null] }}, {"offices.longitude":{ '$in': [null] }}, {"offices.city": {$in : ["Amsterdam"]}}, {deadpooled_year: null}, {"funding_rounds.raised_amount": {$gte: 1000000}}]}
+
 
 
 
