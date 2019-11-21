@@ -10,7 +10,7 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 load_dotenv()
-import searching as se 
+import functions as fun
 
 # Web scraping of locals rental in Amsterdam
 def getPage(url):
@@ -19,64 +19,49 @@ def getPage(url):
     soup = BeautifulSoup(html, 'html.parser')
     return soup
 
-url = "http://www.dutchrental.com/commercial-property/Amsterdam"
-soup = getPage(url)
-rlocal = soup.select('p a')
 
-web =[]
-for r in rlocal:
-    web.append(r.get('href'))
+def main():
+    url = "http://www.dutchrental.com/commercial-property/Amsterdam"
+    soup = getPage(url)
+    rlocal = soup.select('p a')
 
-web1=[]
-for i in range (2,6):
-    x = getPage(f"http://www.dutchrental.com/commercial-property/Amsterdam?page={i}")   
-    rlocal1 = x.select('p a')
-    for r in rlocal1:
-        web1.append(r.get('href'))
+    web =[]
+    for r in rlocal:
+        web.append(r.get('href'))
 
-cleaning = web+web1
-clean =[]
-for c in cleaning:
-    c1 = re.sub(r"/commercial-property-for-rent/Amsterdam/", "", c)
-    c2 = re.sub(r"\/[0-9]+\/overview", "", c1)
-    c3 = re.sub(r"\-", " ", c2)
-    clean.append(c3)
+    web1=[]
+    for i in range (2,6):
+        x = getPage(f"http://www.dutchrental.com/commercial-property/Amsterdam?page={i}")   
+        rlocal1 = x.select('p a')
+        for r in rlocal1:
+            web1.append(r.get('href'))
 
-# Getting coordinates with the address
-gmaps = googlemaps.Client(key=os.getenv("key"))
+    cleaning = web+web1
+    clean =[]
+    for c in cleaning:
+        c1 = re.sub(r"/commercial-property-for-rent/Amsterdam/", "", c)
+        c2 = re.sub(r"\/[0-9]+\/overview", "", c1)
+        c3 = re.sub(r"\-", " ", c2)
+        clean.append(c3)
 
-def coordLocals(listlocals):
-    addresslocals = []
-    for n in listlocals:
-        addresslocals.append(gmaps.places(n))      
-    return addresslocals
+    # Getting coordinates with the address
+    gmaps = googlemaps.Client(key=os.getenv("key"))
 
-localams = coordLocals(clean)
+    def coordLocals(listlocals):
+        addresslocals = []
+        for n in listlocals:
+            addresslocals.append(gmaps.places(n))      
+        return addresslocals
 
-def getParameters(companies):
-    param =[]
-    for comp in companies:
-        for i in range(len(comp['results'])):
-            longitude = comp['results'][i]['geometry']['location']['lng']
-            latitude = comp['results'][i]['geometry']['location']['lat']
-            address = comp['results'][i]['name']
-            loc = {
-            'address': address,
-            'coordinates':[longitude, latitude]
-            }
-            param.append(loc)
-    return param
+    localams = coordLocals(clean)
+    x = fun.getLocation(localams)
 
-x = getParameters(localams)
+    # Insert collection and location for geoindex
+    db, coll = fun.connectCollection('companies', 'companies')
+    col = db["rentlocals"]
+    col.insert_many(x)
 
-# Insert collection and location for geoindex
-db, coll = se.ca.connectCollection('companies', 'companies')
-col = db["rentlocals"]
-col.insert_many(x)
+    print("Inserted rentlocals")
 
-db, collr = se.ca.connectCollection('companies', 'rentlocals')
-
-for x1 in x:
-    value = {"$set": {'location':se.getLocation(x1)}}
-    query = {"_id": x1['_id']}
-    collr.update_many(query, value)
+if __name__ == "__main__":
+    main()

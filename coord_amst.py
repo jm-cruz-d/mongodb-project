@@ -22,7 +22,6 @@ alloffices = [
 
 comp = list(coll.aggregate(alloffices))
 
-
 # Function that generates a list of offices with latitude and longitude nulls, 
 # other list with the succesfull offices and other with latitude and longitude wrongs.
 def outNulls(company):
@@ -86,7 +85,6 @@ db, coll2 = connectCollection('companies', 'amsterdam')
 # Insert location to create geoindex
 def getLocation(companies):
     location =[]
-    #for i in range(len(companies['offices'])):
     longitude = companies['offices']['longitude']
     latitude = companies['offices']['latitude']
     loc = {

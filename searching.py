@@ -34,38 +34,43 @@ def searchPlaces(query):
         time.sleep(2)
     return places
 
-# Parameters search function
-def getParameters(companies):
+# Parameters search function and location
+def getLocation(companies):
     location =[]
     for x in range(len(companies)):
         longitude = companies[x]['geometry']['location']['lng']
         latitude = companies[x]['geometry']['location']['lat']
         name=companies[x]['name']
+        address=companies[x]['formatted_address']
         loc = {
             'name': name,
-            'coordinates':[longitude, latitude]
+            'address': address,
+            'location':{
+                'type':'Point',
+                'coordinates':[longitude, latitude]
+                       }
         }
         location.append(loc)
     return location
 
 
 starbucks = searchPlaces('Starbucks')
-sbloc = getParameters(starbucks)
+sbloc = getLocation(starbucks)
 
 schools = searchPlaces('Primary school')
-scloc = getParameters(schools)
+scloc = getLocation(schools)
 
 kindergarten = searchPlaces('kindergarten')
-kdloc = getParameters(kindergarten)
+kdloc = getLocation(kindergarten)
 
 night_club = searchPlaces('night club')
-ncloc = getParameters(night_club)
+ncloc = getLocation(night_club)
 
 vegan_restaurant = searchPlaces('vegan restaurant')
-vrloc = getParameters(vegan_restaurant)
+vrloc = getLocation(vegan_restaurant)
 
 airport = searchPlaces('airport amsterdam')
-aloc = getParameters(airport)
+aloc = getLocation(airport)
 
 db, col = ca.connectCollection('companies', 'companies')
 
@@ -84,23 +89,3 @@ def insertColl(dictionary, database):
         print("collects inserted")
 
 insertColl(diccsearch, db)
-
-# Get location in each new collection
-def getLocation(companies):
-    location =[]
-    longitude = companies['coordinates'][1]
-    latitude = companies['coordinates'][0]
-    loc = {
-        'type':'Point',
-        'coordinates':[latitude, longitude]
-        }
-    location.append(loc)
-    print(location)
-    return location
-
-for k, v in diccsearch.items():
-    for v1 in v:
-        db, coll = ca.connectCollection('companies', k)
-        value = {"$set": {'location':getLocation(v1)}}
-        query = {"_id": v1['_id']}
-        coll.update_many(query, value)
