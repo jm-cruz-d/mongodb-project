@@ -1,5 +1,5 @@
 .env
-Pruebas
-.ypynb_checkpoints
-__pycache__
+Pruebas/
+.ipynb_checkpoints/
+__pycache__/
 MongoDB.key
