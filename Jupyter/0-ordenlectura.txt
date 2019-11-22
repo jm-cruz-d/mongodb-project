@@ -1,0 +1,6 @@
+El orden del trabajo es:
+    - coord_nulls
+    - API_places_nextpage
+    - Web scraping
+    - GEOqueries rents
+    - Geoqueries Starbucks
